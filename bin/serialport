@@ -1,0 +1,12 @@
+#! /usr/bin/env node
+
+var serialbot = require('../lib/serialport');
+
+
+serialbot.list(function(error, ports) {
+  console.log(ports);
+});
+
+serialbot.start({
+  serialPath: '/dev/cu.usbmodemfd121'
+});
