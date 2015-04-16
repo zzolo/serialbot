@@ -4,7 +4,7 @@
  * A wrapper around the library.
  */
 
-var serialbot = require('../lib/serialport');
+var serialbot = require('../lib/serialbot');
 var package = require('../package.json');
 var commandline = require('commander');
 
@@ -91,14 +91,14 @@ startCommand
 commandline.on('--help', function(){
   console.log('  Examples:');
   console.log('');
-  console.log('    $ serialport list');
-  console.log('    $ serialport start /dev/cu.usbmodem -p 8080');
+  console.log('    $ serialbot list');
+  console.log('    $ serialbot start /dev/cu.usbmodem -p 8080');
   console.log('');
 });
 startCommand.on('--help', function(){
   console.log('  Examples:');
   console.log('');
-  console.log('    $ serialport start /dev/cu.usbmodem -p 8080');
+  console.log('    $ serialbot start /dev/cu.usbmodem -p 8080');
   console.log('');
 });
 
