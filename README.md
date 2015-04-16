@@ -30,11 +30,10 @@ This will make a connection to the serial port and start an HTTP server that all
 
       <!-- Example connection -->
       <script type="text/javascript">
-        var consoleOutput = '';
-
         // Connect to socket
         var serialbot = io.connect('//localhost:8899/');
 
+        // Do something with the data
         serialbot.on('data', function(data) {
           console.log('Serial data received: ', data);
         });
@@ -44,9 +43,28 @@ This will make a connection to the serial port and start an HTTP server that all
 
 See the `examples` folder for some more extensive, but still basic examples for an HTML page and an Arduino sketch.
 
+## Serial parsing
+
+By default the serialport module just passes through the Buffer data.  This module uses the provided `serialport.parsers.readline('\n')` parser for serial reading by default, meaning that each data event will be separated by a new line.  If you need something different, feel free to use the module in a JS file.
+
 ## Options
 
 Most options that are available to the serial port are available through the command line.  Use the `--help` option to see a full list
 
     serialbot --help
     serialbot start --help
+
+## Using in code
+
+This module can be used directly in your JS code if desired, even though this is not really the main reason for the module.  Something like the following should get your start.
+
+    var serialbot = require('serialbot');
+    var s = serialbot.start({
+      serialPath: '/dev/cu.usbmodemXXX',
+      serialPortOptions: {},
+      httpPort: 8899
+    });
+    // `s` will then have the following properties
+    // serialPort: The serialport object
+    // httpServer: The http server object
+    // socket: The socket.io object

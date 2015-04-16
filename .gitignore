@@ -1,6 +1,7 @@
 !bin
 
 # General git ignores
+npm-debug.log
 node_modules/
 components/
 bower_components/
