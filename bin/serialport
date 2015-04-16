@@ -1,12 +1,159 @@
 #! /usr/bin/env node
 
+/**
+ * A wrapper around the library.
+ */
+
 var serialbot = require('../lib/serialport');
+var package = require('../package.json');
+var commandline = require('commander');
 
+// Configuration for serialport module so that we can build the command
+// line options for these
+var serialPortConfigOptions = [
+  {
+    name: 'baudrate',
+    alias: 'b',
+    input: '<n>',
+    describe: 'Baud Rate, defaults to 9600.',
+    check: parseIntProxy,
+    default: 9600
+  },
+  {
+    name: 'databits',
+    alias: 'd',
+    input: '<n>',
+    describe: 'Data Bits, defaults to 8. Must be one of: 8, 7, 6, or 5.',
+    check: function(input) {
+      input = parseInt(input);
+      return ([8, 7, 6, 5].indexOf(input) === -1) ? undefined : input;
+    }
+  },
+  {
+    name: 'stopbits',
+    alias: 'd',
+    input: '<n>',
+    describe: 'Stop Bits, defaults to 1. Must be one of: 1 or 2.',
+    check: function(input) {
+      input = parseInt(input);
+      return ([1, 2].indexOf(input) === -1) ? undefined : input;
+    }
+  },
+  {
+    name: 'parity',
+    alias: 'a',
+    input: '<a>',
+    describe: 'Parity, defaults to \'none\'. Must be one of: \'none\', \'even\', \'mark\', \'odd\', \'space\'.',
+    check: function(input) {
+      return (['none', 'even', 'mark', 'odd', 'space'].indexOf(input) === -1) ? undefined : input;
+    }
+  },
+  {
+    name: 'buffersize',
+    alias: 'u',
+    input: '<n>',
+    describe: 'Size of read buffer, defaults to 255. Must be an integer value.',
+    check: parseIntProxy
+  }
+];
 
-serialbot.list(function(error, ports) {
-  console.log(ports);
+// Set up global command line options
+commandline
+  .version(package.version);
+
+// List command
+commandline
+  .command('list')
+  .description('List available serial ports.')
+  .option('-v, --verbose', 'Enables more output')
+  .action(commandList);
+
+// Start command.  Add options for serialport
+var startCommand = commandline
+  .command('start <path>')
+  .description('Start serialbot server; <path> should be the serial port path (as seen through the list command).')
+  .option('-p, --port <n>', 'Port to use for the HTTP server, defaults to 8899', parseIntProxy, 8899)
+  .option('-v, --verbose', 'Enables more output');
+
+serialPortConfigOptions.forEach(function(o, oi) {
+  startCommand = startCommand.option(
+    '-' + o.alias + ', --' + o.name + ' ' + o.input,
+    o.describe,
+    o.check,
+    o.default
+  );
 });
 
-serialbot.start({
-  serialPath: '/dev/cu.usbmodemfd121'
-});
+startCommand
+  .action(commandStart);
+
+// Parse options
+commandline.parse(process.argv);
+
+
+// List serial ports
+function commandList(env, options) {
+  serialbot.list(function(error, ports) {
+    if (error) {
+      throw error;
+      process.exit(1);
+      return;
+    }
+
+    ports.forEach(function(p) {
+      // comName: '/dev/cu.usbmodemfd121',
+      // manufacturer: 'Arduino (www.arduino.cc)',
+      // serialNumber: '75338323535351E0D001',
+      // pnpId: '',
+      // locationId: '0xfd120000',
+      // vendorId: '0x2341',
+      // productId: '0x0043'
+      console.log(p.comName);
+    });
+  });
+}
+
+// Start server
+function commandStart(path, options) {
+  if (!path) {
+    throw 'Serial path was not given.';
+    process.exit(1);
+    return;
+  }
+
+  // Get options for serial port
+  var serialPortOptions = {};
+  serialPortConfigOptions.forEach(function(o, oi) {
+    if (options[o.name]) {
+      serialPortOptions[o.name] = options[o.name];
+    }
+  });
+
+  // Start server
+  try {
+    serialbot.start({
+      serialPath: path,
+      serialPortOptions: serialPortOptions,
+      httpPort: (options.port) ? options.port : undefined
+    });
+
+    // If verbose, make some output
+    if (options.verbose) {
+      console.log('Reading from serial port: ' + path);
+      console.log('Server started at: http://localhost:' + options.port + '/');
+      console.log('Include the socket.io JS with: http://localhost:' + options.port + '/socket.io/socket.io.js');
+      console.log('For example: <script src="//localhost:' + options.port + '/socket.io/socket.io.js"></script>');
+    }
+  }
+  catch (error) {
+    console.error(error);
+    process.exit(1);
+    return;
+  }
+}
+
+// Proxy for parseInt since commander sends the default
+// as the second paramter
+function parseIntProxy(input, defaultValue) {
+  return parseInt(input, 10);
+}
