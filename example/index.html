@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	<title>SerialBot example</title>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container serial-bot-example-container">
+	  <h1>SerialBot example</h1>
+
+    <form>
+      <p>The following is the output from the serial connection.</p>
+      <textarea class="form-control console-output" rows="10"></textarea>
+    </form>
+  </div>
+
+
+  <!-- This is NOT necessary to include -->
+  <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+
+  <!-- This IS NECESSARY to include -->
+  <script src="//localhost:8899/socket.io/socket.io.js"></script>
+
+  <!-- Example connection -->
+	<script type="text/javascript">
+    var consoleOutput = '';
+
+    // Connect to socket
+		var serialbot = io.connect('//localhost:8899/', {
+			'reconnect': true,
+			'reconnection delay': 500,
+			'max reconnection attempts': 10
+		});
+
+    serialbot.on('connect', function(data) {
+			console.log('Socket connected.');
+		});
+
+    serialbot.on('event', function(data) {
+			console.log('Serial event: ', data);
+		});
+
+    serialbot.on('data', function(data) {
+			console.log('Serial data received: ', data);
+		});
+
+    // Overwrite console.log to display to the page
+    console.log = function() {
+      var output = Array.prototype.slice.call(arguments).join('  ') + '\n';
+      consoleOutput = output + consoleOutput;
+      $('.console-output').val(consoleOutput);
+    }
+	</script>
+</body>
+</html>

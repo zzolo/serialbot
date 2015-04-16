@@ -1,0 +1,30 @@
+{
+  "name": "serialbot",
+  "version": "0.0.1",
+  "description": "A simple command line utility to communicate between a serial port (like the output of an Arduino) and a web browser via sockets.",
+  "main": "index.js",
+  "bin": {
+    "serialport": "bin/serialport"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzolo/serialbot.git"
+  },
+  "keywords": [
+    "serial",
+    "sockets"
+  ],
+  "author": "Alan Palazzolo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zzolo/serialbot/issues"
+  },
+  "homepage": "https://github.com/zzolo/serialbot",
+  "dependencies": {
+    "serialport": "^1.6.3",
+    "socket.io": "^1.3.5"
+  }
+}
