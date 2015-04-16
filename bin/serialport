@@ -62,7 +62,7 @@ commandline
   .version(package.version);
 
 // List command
-commandline
+var listCommand = commandline
   .command('list')
   .description('List available serial ports.')
   .option('-v, --verbose', 'Enables more output')
@@ -86,6 +86,21 @@ serialPortConfigOptions.forEach(function(o, oi) {
 
 startCommand
   .action(commandStart);
+
+// Some custom help text
+commandline.on('--help', function(){
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ serialport list');
+  console.log('    $ serialport start /dev/cu.usbmodem -p 8080');
+  console.log('');
+});
+startCommand.on('--help', function(){
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ serialport start /dev/cu.usbmodem -p 8080');
+  console.log('');
+});
 
 // Parse options
 commandline.parse(process.argv);
