@@ -1,2 +1,2 @@
 #! /usr/bin/env node
-module.exports = require('./lib/seriaport');
+module.exports = require('./lib/serialbot');
